@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block page_title %}Hash analysis<section class="panel"><span class="eyebrow">ALGORITHM COMPARISON</span><h3>Password storage algorithm comparison</h3><p class="muted">Educational comparison of suitability, not a live performance benchmark.</p><div class="table-wrap"><table><thead><tr><th>ALGORITHM</th><th>SUITABILITY</th><th>RELATIVE STRENGTH</th><th>RISK</th><th>NOTES</th></tr></thead><tbody>{% for item in comparison %}<tr><td>{{ item.algorithm }}</td><td>{{ item.password_storage }}</td><td>{{ item.relative_strength }}</td><td>{{ item.risk }}</td><td>{{ item.notes }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}
+{% block content %}
+<div class="page-intro"><p class="muted">Identify common hash formats, verify supported password hashes, or generate safe demo hashes.</p></div>
+<div class="content-grid">
+<section class="panel"><span class="eyebrow">FORMAT ANALYSIS</span><h3>Identify a hash</h3>
+<form method="post" class="stack-form"><input type="hidden" name="action" value="identify"><label>Hash value</label><textarea name="hash_value" rows="3" placeholder="Paste a synthetic hash..." required></textarea><button class="btn primary">Identify format</button></form>
+{% if result and result.algorithm %}<div class="tool-result"><b>{{ result.algorithm }}</b><span class="pill {{ result.risk|lower }}">{{ result.risk }} risk</span><p>{{ result.note }}</p><small>Confidence: {{ result.confidence }}</small></div>{% endif %}
+</section>
+<section class="panel"><span class="eyebrow">PASSWORD VERIFICATION</span><h3>Verify an encoded hash</h3>
+<form method="post" class="stack-form"><input type="hidden" name="action" value="verify"><label>Candidate password</label><input type="password" name="candidate_password" required autocomplete="off"><label>Encoded Argon2id / bcrypt hash</label><textarea name="hash_value" rows="3" required></textarea><button class="btn secondary">Verify password</button></form>
+{% if result and result.message %}<div class="tool-result"><b>{{ result.message }}</b></div>{% endif %}
+</section>
+<section class="panel"><span class="eyebrow">DEMO UTILITY</span><h3>Generate a secure demo hash</h3>
+<form method="post" class="stack-form"><input type="hidden" name="action" value="generate"><label>Sample password</label><input type="password" name="candidate_password" required autocomplete="off"><label>Algorithm</label><select name="algorithm"><option>Argon2id</option><option>bcrypt</option></select><button class="btn secondary">Generate hash</button></form>
+{% if generated %}<div class="tool-result"><b>Generated hash</b><code class="hash-output">{{ generated }}</code></div>{% endif %}
+</section>
+<section class="panel"><span class="eyebrow">IMPORTANT</span><h3>Identification limitations</h3><p class="muted">A hash's length or prefix can suggest a format, but cannot prove its origin. This tool only verifies Argon2id and bcrypt encoded hashes. MD5, SHA-1 and SHA-256 are not suitable as standalone password-storage algorithms.</p></section>
+</div>
+<section class="panel"><span class="eyebrow">ALGORITHM COMPARISON</span><h3>Password storage algorithm comparison</h3><p class="muted">Educational comparison of suitability, not a live performance benchmark.</p><div class="table-wrap"><table><thead><tr><th>ALGORITHM</th><th>SUITABILITY</th><th>RELATIVE STRENGTH</th><th>RISK</th><th>NOTES</th></tr></thead><tbody>{% for item in comparison %}<tr><td>{{ item.algorithm }}</td><td>{{ item.password_storage }}</td><td>{{ item.relative_strength }}</td><td>{{ item.risk }}</td><td>{{ item.notes }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

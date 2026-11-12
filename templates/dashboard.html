@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block page_title %}Security overview{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h2>Good to see you, {{ session.get('username') }}.</h2><p class="muted">Monitor password posture and recent assessment activity.</p></div><a class="btn primary" href="{{ url_for('assess') }}">＋ New assessment</a></div>
+<div class="stat-grid">
+  <div class="stat-card"><span class="stat-label">TOTAL ASSESSMENTS</span><strong>{{ totals.total or 0 }}</strong><small>Recorded locally</small></div>
+  <div class="stat-card"><span class="stat-label">HIGH / CRITICAL RISK</span><strong class="red">{{ totals.risky or 0 }}</strong><small>Requires attention</small></div>
+  <div class="stat-card"><span class="stat-label">POLICY COMPLIANT</span><strong class="green">{{ totals.compliant or 0 }}</strong><small>Passing assessments</small></div>
+</div>
+<div class="content-grid">
+  <section class="panel"><div class="panel-head"><div><span class="eyebrow">ACTIVITY</span><h3>Recent assessments</h3></div><a href="{{ url_for('reports') }}">View all →</a></div>
+    {% if history %}<div class="table-wrap"><table><thead><tr><th>TIME (UTC)</th><th>STRENGTH</th><th>RISK</th><th>POLICY</th><th>HASH</th></tr></thead><tbody>
+    {% for item in history[:10] %}<tr><td>{{ item.created_at[:19].replace('T',' ') }}</td><td>{{ item.strength_score }}/4</td><td><span class="pill {{ item.risk_level|lower }}">{{ item.risk_level }} · {{ item.risk_score }}</span></td><td>{{ 'Pass' if item.policy_compliant else 'Fail' }}</td><td>{{ item.hash_algorithm or 'Not assessed' }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<div class="empty"><div class="empty-icon">⌁</div><b>No assessments yet</b><p>Run your first password assessment to populate this dashboard.</p><a class="btn secondary" href="{{ url_for('assess') }}">Start assessment</a></div>{% endif %}
+  </section>
+  <section class="panel side-panel"><span class="eyebrow">QUICK ACTIONS</span><h3>Security tools</h3>
+    <a class="action-link" href="{{ url_for('assess') }}"><span class="action-icon">⌕</span><span><b>Test a password</b><small>Strength, entropy and risk</small></span><span>→</span></a>
+    <a class="action-link" href="{{ url_for('hash_tools') }}"><span class="action-icon">⌘</span><span><b>Analyze a hash</b><small>Identify and verify formats</small></span><span>→</span></a>
+    <a class="action-link" href="{{ url_for('policy') }}"><span class="action-icon">☷</span><span><b>Configure policy</b><small>Set organization requirements</small></span><span>→</span></a>
+    <div class="notice"><b>Privacy by design</b><p>Submitted test passwords are processed for the current request and are not written to the database or audit log.</p></div>
+  </section>
+</div>
+{% endblock %}

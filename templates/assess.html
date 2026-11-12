@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block page_title %}Password assessment{% endblock %}
+{% block content %}
+<div class="page-intro"><p class="muted">Evaluate a sample password against strength heuristics and your configured policy.</p></div>
+<div class="content-grid assess-grid">
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">INPUT</span><h3>Run assessment</h3></div><span class="tag">LOCAL PROCESSING</span></div>
+<form method="post" class="stack-form">
+  <label>Account identifier (synthetic username)</label><input name="account" placeholder="e.g. employee001" required>
+  <label>Sample password</label><div class="password-field"><input id="passwordInput" name="password" type="password" required autocomplete="off" placeholder="Enter a test password"><button type="button" class="reveal" data-toggle-password="passwordInput">Show</button></div>
+  <small class="muted">Use synthetic test data only. This value is not stored.</small>
+  <label>Hash to assess <span class="optional">Optional</span></label><input name="hash_value" placeholder="Paste an encoded hash (Argon2id, bcrypt, etc.)">
+  <label>Password age in days <span class="optional">Optional</span></label><input name="password_age_days" type="number" min="0" max="10000" placeholder="e.g. 210">
+  <button class="btn primary full">Run security assessment →</button>
+</form>
+<div class="policy-summary"><b>Active policy</b><span>Minimum {{ policy.min_length }} characters</span><span>{{ 'Uppercase · ' if policy.uppercase }}{{ 'Lowercase · ' if policy.lowercase }}{{ 'Number · ' if policy.number }}{{ 'Special character' if policy.special }}</span></div>
+</section>
+{% if result %}
+<section class="panel result-panel">
+  <div class="panel-head"><div><span class="eyebrow">ASSESSMENT RESULT</span><h3>Security findings</h3></div><span class="pill {{ result.risk.level|lower }}">{{ result.risk.level }} risk</span></div>
+  <div class="score-row"><div><span class="muted">Risk score</span><div class="big-score">{{ result.risk.score }}<small>/100</small></div></div><div class="strength-box"><span class="muted">Strength estimate</span><b>{{ result.strength.label }}</b><small>{{ result.strength.score }}/4 · {{ result.strength.entropy_bits }} estimated bits</small></div></div>
+  <div class="meter"><span style="width:{{ result.risk.score }}%"></span></div>
+  <div class="result-columns"><div><h4>Password checks</h4>{% for name, passed in result.strength.checks.items() %}<div class="check-row"><span>{{ name.replace('_',' ')|title }}</span><b class="{{ 'green' if passed else 'red' }}">{{ 'PASS' if passed else 'FAIL' }}</b></div>{% endfor %}
+  <div class="check-row"><span>Policy compliance</span><b class="{{ 'green' if result.policy.compliant else 'red' }}">{{ 'PASS' if result.policy.compliant else 'FAIL' }}</b></div></div>
+  <div><h4>Risk factors</h4>{% if result.risk.reasons %}<ul class="clean-list">{% for reason in result.risk.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% else %}<p class="green">No major risk factors identified.</p>{% endif %}
+  <h4>Password reuse and history</h4><p>{{ 'Reuse/history match detected' if (result.reuse.reused_across_accounts or result.reuse.previously_used_by_account) else 'No match found in stored fingerprint history' }}</p>
+  {% if result.hash_info %}<h4>Hash analysis</h4><p><b>{{ result.hash_info.algorithm }}</b> · {{ result.hash_info.risk }} risk</p><small class="muted">{{ result.hash_info.note }}</small>{% endif %}</div></div>
+  <h4>Recommendations</h4><ul class="clean-list">{% for item in result.recommendations %}<li>{{ item }}</li>{% endfor %}</ul>
+  <div class="button-row"><a class="btn secondary" href="{{ url_for('legacy_export', fmt='pdf') }}">↓ PDF report</a><a class="btn secondary" href="{{ url_for('legacy_export', fmt='excel') }}">↓ Excel report</a></div>
+  <p class="fine-print">Crack-time and entropy values are estimates. Risk thresholds are a project-defined model, not a formal security certification.</p>
+</section>
+{% else %}
+<section class="panel placeholder-panel"><div class="empty-icon">◈</div><h3>Awaiting assessment</h3><p class="muted">Submit a sample password to see its strength, policy status, risk score and recommendations here.</p></section>
+{% endif %}
+</div>
+{% endblock %}

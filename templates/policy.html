@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block page_title %}Password policy{% endblock %}
+{% block content %}
+<div class="content-grid">
+<section class="panel policy-panel"><span class="eyebrow">ORGANIZATION SETTINGS</span><h3>Configure password requirements</h3><p class="muted">These settings are applied to new password assessments.</p>
+<form method="post" class="stack-form">
+<label>Minimum password length</label><input type="number" name="min_length" min="8" max="128" value="{{ policy.min_length }}" required>
+<label class="toggle-row"><span><b>Require uppercase letters</b><small>At least one A–Z character</small></span><input type="checkbox" name="uppercase" {{ 'checked' if policy.uppercase }}></label>
+<label class="toggle-row"><span><b>Require lowercase letters</b><small>At least one a–z character</small></span><input type="checkbox" name="lowercase" {{ 'checked' if policy.lowercase }}></label>
+<label class="toggle-row"><span><b>Require numbers</b><small>At least one digit</small></span><input type="checkbox" name="number" {{ 'checked' if policy.number }}></label>
+<label class="toggle-row"><span><b>Require special characters</b><small>At least one symbol</small></span><input type="checkbox" name="special" {{ 'checked' if policy.special }}></label>
+<label>Maximum password age in days (0 = disabled)</label><input type="number" name="max_age_days" min="0" max="3650" value="{{ policy.max_age_days or 0 }}" required>
+<label>Password history depth (number of previous passwords)</label><input type="number" name="history_count" min="1" max="20" value="{{ policy.history_count or 5 }}" required>
+<button class="btn primary">Save password policy →</button>
+</form></section>
+<section class="panel"><span class="eyebrow">GUIDANCE</span><h3>Policy design notes</h3><ul class="clean-list"><li>Favor long, unique passwords or passphrases.</li><li>Screen new passwords against common and compromised-password blocklists.</li><li>Do not rely on character-class rules as the only measure of strength.</li><li>Use MFA and rate limiting as additional controls.</li><li>Do not force arbitrary periodic changes unless there is evidence of compromise or a defined organizational requirement.</li></ul></section>
+</div>
+{% endblock %}

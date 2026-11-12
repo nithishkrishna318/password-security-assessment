@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Password Security Assessment{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+{% if session.get('admin_id') %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">S</span><div><b>Sentinel</b><small>Password Security</small></div></div>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">▦ Dashboard</a>
+      <a href="{{ url_for('assess') }}" class="{{ 'active' if request.endpoint == 'assess' else '' }}">⌕ Password assessment</a>
+      <a href="{{ url_for('batch') }}">▦ Batch CSV assessment</a>
+      <a href="{{ url_for('hash_tools') }}" class="{{ 'active' if request.endpoint == 'hash_tools' else '' }}">⌘ Hash analysis</a>
+      <a href="{{ url_for('policy') }}" class="{{ 'active' if request.endpoint == 'policy' else '' }}">☷ Password policy</a>
+      <a href="{{ url_for('compliance') }}">✓ Compliance mapping</a>
+      <a href="{{ url_for('monitoring') }}">◉ Event monitoring</a>
+      <a href="{{ url_for('reports') }}" class="{{ 'active' if request.endpoint == 'reports' else '' }}">▤ Reports & audit</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="{{ url_for('change_password') }}">⚙ Change password</a>
+      <a href="{{ url_for('logout') }}">↗ Sign out</a>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><span class="eyebrow">SECURITY OPERATIONS</span><h1>{% block page_title %}Overview{% endblock %}</h1></div><div class="user-chip"><span class="online-dot"></span>{{ session.get('username') }}</div></header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer>Sentinel · Local educational security assessment · Do not submit real credentials</footer>
+  </main>
+</div>
+{% else %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+{% endwith %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>
